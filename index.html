@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280" />
+  <title>MediStock — Pharmacy Inventory</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="logo-mark">+</div>
+        <div>
+          <h1>MediStock</h1>
+          <p>Pharmacy Inventory Manager</p>
+        </div>
+      </div>
+      <form id="login-form" autocomplete="off">
+        <label>
+          Username
+          <input type="text" id="login-user" placeholder="Enter username" required />
+        </label>
+        <label>
+          Password
+          <input type="password" id="login-pass" placeholder="Enter password" required />
+        </label>
+        <p id="login-error" class="form-error hidden"></p>
+        <button type="submit" class="btn btn-primary btn-full">Sign in</button>
+        <p class="login-hint">Demo login: <strong>admin</strong> / <strong>admin123</strong></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="logo-mark">+</div>
+        <div>
+          <strong>MediStock</strong>
+          <span>Pharmacy</span>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="inventory">Inventory</button>
+        <button class="nav-btn" data-view="stock">Stock In / Out</button>
+        <button class="nav-btn" data-view="alerts">Alerts</button>
+      </nav>
+      <button id="logout-btn" class="btn btn-ghost">Sign out</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="page-title">Dashboard</h2>
+          <p id="page-sub">Overview of pharmacy stock</p>
+        </div>
+        <div class="topbar-actions">
+          <span id="clock" class="clock"></span>
+          <button id="add-item-btn" class="btn btn-primary">+ Add medicine</button>
+        </div>
+      </header>
+
+      <section id="view-dashboard" class="view">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span>Total medicines</span>
+            <strong id="stat-total">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>Units in stock</span>
+            <strong id="stat-units">0</strong>
+          </article>
+          <article class="stat-card">
+            <span>Inventory value</span>
+            <strong id="stat-value">₹0</strong>
+          </article>
+          <article class="stat-card warn">
+            <span>Low stock</span>
+            <strong id="stat-low">0</strong>
+          </article>
+          <article class="stat-card danger">
+            <span>Expiring soon</span>
+            <strong id="stat-expiring">0</strong>
+          </article>
+        </div>
+        <div class="two-col">
+          <div class="panel">
+            <h3>Category breakdown</h3>
+            <div id="category-bars"></div>
+          </div>
+          <div class="panel">
+            <h3>Needs attention</h3>
+            <ul id="attention-list" class="attention-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-inventory" class="view hidden">
+        <div class="toolbar">
+          <input type="search" id="search" placeholder="Search name, SKU, or supplier…" />
+          <select id="filter-category">
+            <option value="">All categories</option>
+          </select>
+          <select id="filter-stock">
+            <option value="">All stock levels</option>
+            <option value="low">Low stock</option>
+            <option value="ok">In stock</option>
+            <option value="out">Out of stock</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>SKU / Batch</th>
+                <th>Category</th>
+                <th>Qty</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Expiry</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="inventory-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="view-stock" class="view hidden">
+        <div class="panel">
+          <h3>Adjust stock</h3>
+          <form id="stock-form" class="stock-form">
+            <label>
+              Medicine
+              <select id="stock-item" required></select>
+            </label>
+            <label>
+              Action
+              <select id="stock-action" required>
+                <option value="in">Stock in (received)</option>
+                <option value="out">Stock out (dispensed)</option>
+              </select>
+            </label>
+            <label>
+              Quantity
+              <input type="number" id="stock-qty" min="1" step="1" required />
+            </label>
+            <label>
+              Note
+              <input type="text" id="stock-note" placeholder="Supplier delivery, prescription, etc." />
+            </label>
+            <button type="submit" class="btn btn-primary">Apply</button>
+          </form>
+        </div>
+        <div class="panel">
+          <h3>Recent movements</h3>
+          <ul id="movement-list" class="movement-list"></ul>
+        </div>
+      </section>
+
+      <section id="view-alerts" class="view hidden">
+        <div class="two-col">
+          <div class="panel">
+            <h3>Low stock</h3>
+            <ul id="low-list" class="attention-list"></ul>
+          </div>
+          <div class="panel">
+            <h3>Expiring within 60 days</h3>
+            <ul id="expiry-list" class="attention-list"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <h3 id="modal-title">Add medicine</h3>
+      <form id="item-form">
+        <input type="hidden" id="item-id" />
+        <div class="form-grid">
+          <label>Name<input type="text" id="item-name" required /></label>
+          <label>SKU / Batch<input type="text" id="item-sku" required /></label>
+          <label>Category
+            <select id="item-category" required>
+              <option>Antibiotics</option>
+              <option>Analgesics</option>
+              <option>Vitamins</option>
+              <option>OTC</option>
+              <option>Cardiac</option>
+              <option>Diabetes</option>
+              <option>Respiratory</option>
+              <option>Surgical</option>
+            </select>
+          </label>
+          <label>Unit
+            <select id="item-unit" required>
+              <option>strips</option>
+              <option>tablets</option>
+              <option>capsules</option>
+              <option>bottles</option>
+              <option>vials</option>
+              <option>tubes</option>
+              <option>packs</option>
+            </select>
+          </label>
+          <label>Quantity<input type="number" id="item-qty" min="0" required /></label>
+          <label>Reorder level<input type="number" id="item-reorder" min="0" required /></label>
+          <label>Unit price (₹)<input type="number" id="item-price" min="0" step="0.01" required /></label>
+          <label>Expiry date<input type="date" id="item-expiry" required /></label>
+          <label>Supplier<input type="text" id="item-supplier" required /></label>
+          <label>Shelf / location<input type="text" id="item-shelf" placeholder="A-12" /></label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="cancel-modal" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>
